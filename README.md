@@ -1,0 +1,2 @@
+# BrighterAI technological interview task
+

@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world-{{ .Values.Hello_world.number }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-world-{{ .Values.Hello_world.number }}
+  template:
+    metadata:
+      labels:
+        app: hello-world-{{ .Values.Hello_world.number }}
+    spec:
+      containers:
+        - name: my-hello-world-container
+          image: bash:devel-alpine3.15
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: "50Mi"
+              cpu: "250m"
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name}}-configmap
+          command:
+            - /bin/sh
+            - -c
+            - while sleep "${SLEEP_INTERVAL:-10}"; do echo "${HELLO_WORLD_TEXT:-hello_world} ${HELLO_WORLD_NUMBER:-1}" >> "${HELLO_WORLD_FILE_PATH:-/hello_world_data/hello_world.txt}"; done
+          volumeMounts:
+            - name: persistent-storage
+              mountPath: /hello_world_data
+      volumes:
+      - name: persistent-storage
+        persistentVolumeClaim:
+          claimName: {{ .Values.efs_pv_claim }}

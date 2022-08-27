@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-configmap
+  namespace: {{ .Release.Namespace  }}
+data:
+  HELLO_WORLD_TEXT: "{{ .Values.Hello_world.text }}"
+  HELLO_WORLD_NUMBER: "{{ .Values.Hello_world.number}}"
+  SLEEP_INTERVAL: "10"
+  HELLO_WORLD_FILE_PATH: "hello_world_data/hello_world.txt"

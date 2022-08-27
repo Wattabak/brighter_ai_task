@@ -1,0 +1,43 @@
+{{- if (lookup "v1" "Storageclasses" "" "efs-sc") -}}
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: efs-sc
+provisioner: efs.csi.aws.com
+---
+{{ else }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Release.Name }}-volume
+  labels:
+    type: efs
+spec:
+  capacity:
+    storage: {{ .Values.volume.storage }}
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: efs-sc
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: {{ .Values.EFS_FILE_STORAGE_ID }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: efs-pv-claim
+  namespace: {{ .Release.Namespace }}
+spec:
+  resources:
+    requests:
+      storage: 5Mi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  storageClassName: efs-sc
+{{- end -}}
+
+
